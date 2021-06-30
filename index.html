@@ -1,12 +1,53 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		<title>3D Flight Data Visualizer</title>
-		<script src="https://cdn.babylonjs.com/viewer/babylon.viewer.js"></script>
-	</head>
-	<body>
-		<div>
-			<babylon model="https://raw.githubusercontent.com/DatNotData/FlightDataVisualizer/master/DH_RKT_15.obj"></babylon>
-		</div>
-	</body>
+
+<head>
+	<title>3D Flight Data Visualizer</title>
+	<script src="https://cdn.babylonjs.com/viewer/babylon.viewer.js"></script>
+	<link rel="stylesheet" href="style.css">
+</head>
+
+<body onload="createScene">
+	<div>
+
+		<canvas id="renderCanvas" touch-action="none"></canvas> <!-- touch-action="none" for best results from PEP -->
+
+	</div>
+
+
+    <script>
+        const canvas = document.getElementById("renderCanvas"); // Get the canvas element
+        const engine = new BABYLON.Engine(canvas, true); // Generate the BABYLON 3D engine
+
+        // Add your code here matching the playground format
+
+		const createScene = () => {
+			const scene = new BABYLON.Scene(engine);
+
+			const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 4, Math.PI / 4, 1000, new BABYLON.Vector3(0, 150, 0));
+			camera.attachControl(canvas, true);
+
+			const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0));
+
+			//const box = BABYLON.MeshBuilder.CreateBox("box", {});
+
+			const rocketModel = BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/DatNotData/FlightDataVisualizer/master/", "DH_RKT_15.obj");
+
+			return scene;
+		}
+
+        const scene = createScene(); //Call the createScene function
+
+        // Register a render loop to repeatedly render the scene
+        engine.runRenderLoop(function () {
+                scene.render();
+        });
+
+        // Watch for browser/canvas resize events
+        window.addEventListener("resize", function () {
+                engine.resize();
+        });
+    </script>
+</body>
+
 </html>
