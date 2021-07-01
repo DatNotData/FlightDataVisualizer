@@ -3,3 +3,7 @@
 	height: 100%;
 	touch-action: none;
 }
+
+.TimeSliderInput{
+	width: 80%;
+}

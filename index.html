@@ -5,49 +5,109 @@
 	<title>3D Flight Data Visualizer</title>
 	<script src="https://cdn.babylonjs.com/viewer/babylon.viewer.js"></script>
 	<link rel="stylesheet" href="style.css">
+	<script src="main.js"></script>
 </head>
 
 <body onload="createScene">
-	<div>
-
-		<canvas id="renderCanvas" touch-action="none"></canvas> <!-- touch-action="none" for best results from PEP -->
-
-	</div>
+	<h1>3D Flight Data Visualizer</h1>
 
 
-    <script>
-        const canvas = document.getElementById("renderCanvas"); // Get the canvas element
-        const engine = new BABYLON.Engine(canvas, true); // Generate the BABYLON 3D engine
+	<section>
+		<!--<h2>Choose Data File</h2>-->
 
-        // Add your code here matching the playground format
+		<span>
+			<label>Upload Flight Data CSV File</label>
+			<input type="file" accept=".csv" id="dataFileSelector">
+		</span>
 
-		const createScene = () => {
-			const scene = new BABYLON.Scene(engine);
+		<span>
+			<input type="button" value="Load Data" onclick="readDataFile()">
+		</span>	
+		
 
-			const camera = new BABYLON.ArcRotateCamera("camera", Math.PI / 4, Math.PI / 4, 1000, new BABYLON.Vector3(0, 150, 0));
-			camera.attachControl(canvas, true);
+	</section>
 
-			const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0));
+	<section>
+		<!--<h2>Data Formatting</h2>-->
+		<div>
+			<p>Enter the index of where the following elements are located on one line of flight data. For example, if
+				the
+				TIME data is the first number, set 0 as the index.</p>
+		</div>
 
-			//const box = BABYLON.MeshBuilder.CreateBox("box", {});
+		<div>
+			<table>
+				<tr>
+					<th>Time</th>
+					<th>Yaw</th>
+					<th>Pitch</th>
+					<th>Roll</th>
+				</tr>
+				<tr>
+					<td><input type="number" value="0" min="0" step="1" oninput="validity.valid||(value='');"
+							id="index_time"></td>
+					<td><input type="number" value="10" min="0" step="1" oninput="validity.valid||(value='');"
+							id="index_yaw"></td>
+					<td><input type="number" value="11" min="0" step="1" oninput="validity.valid||(value='');"
+							id="index_pitch"></td>
+					<td><input type="number" value="12" min="0" step="1" oninput="validity.valid||(value='');"
+							id="index_roll"></td>
+				</tr>
+			</table>
+		</div>
 
-			const rocketModel = BABYLON.SceneLoader.ImportMeshAsync("", "https://raw.githubusercontent.com/DatNotData/FlightDataVisualizer/master/", "DH_RKT_15.obj");
+		<div>
+			<input type="button" value="Prepare Data Viewer" onclick="prepareDataViewer()">
+		</div>
 
-			return scene;
-		}
 
-        const scene = createScene(); //Call the createScene function
 
-        // Register a render loop to repeatedly render the scene
-        engine.runRenderLoop(function () {
-                scene.render();
-        });
 
-        // Watch for browser/canvas resize events
-        window.addEventListener("resize", function () {
-                engine.resize();
-        });
-    </script>
+	</section>
+
+	<section>
+		<!--<h2>3D Viewer and Controls</h2>-->
+		<section>
+			<div>
+				<label>Time slider:</label>
+				<input type="range" class="TimeSliderInput" id="timeSlider" min="0" max="0"
+					oninput="timerSliderUpdate()">
+				<br>
+				<span>Timestamp from data: </span>
+				<span id="timeSliderValueText">Value Will Be Dislpayed Here</span>
+			</div>
+
+
+		</section>
+		<br>
+		<section>
+			<canvas id="renderCanvas" touch-action="none"></canvas>
+			<!-- touch-action="none" for best results from PEP -->
+		</section>
+
+	</section>
+
+
+	<script>
+		const canvas = document.getElementById("renderCanvas"); // Get the canvas element
+		const engine = new BABYLON.Engine(canvas, true); // Generate the BABYLON 3D engine
+
+		const scene = createScene(); //Call the createScene function
+
+		scene.beforeRender = () => {
+			//updateRocketModelOrientation();
+		};
+
+		// Register a render loop to repeatedly render the scene
+		engine.runRenderLoop(function () {
+			scene.render();
+		});
+
+		// Watch for browser/canvas resize events
+		window.addEventListener("resize", function () {
+			engine.resize();
+		});
+	</script>
 </body>
 
 </html>
