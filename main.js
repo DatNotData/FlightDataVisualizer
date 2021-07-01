@@ -184,7 +184,15 @@ function updateRocketModel() { // get the needed data and update the model orien
 
 	}
 	else {
-		rocketModel.position = new BABYLON.Vector3(0, rocketZeroHeight + 250, 0); // reconverts to mm for displaying
+		var altitude = 0.25; // converts to meters
+		rocketModel.position = new BABYLON.Vector3(0, rocketZeroHeight + altitude * 1000, 0); // reconverts to mm for displaying	
+		var position = new BABYLON.Vector3(0, altitude * 1000, 0);
+		axisX.position = position;
+		axisY.position = position;
+		axisZ.position = position;
+		xChar.position = new BABYLON.Vector3(0.9 * axesSize, 0.05 * axesSize + altitude * 1000 + rocketZeroHeight, 0);
+		yChar.position = new BABYLON.Vector3(0, 0.9 * axesSize + altitude * 1000 + rocketZeroHeight, -0.05 * axesSize);
+		zChar.position = new BABYLON.Vector3(0, 0.05 * axesSize + altitude * 1000 + rocketZeroHeight, 0.9 * axesSize);
 	}
 }
 
