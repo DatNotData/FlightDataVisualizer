@@ -5,5 +5,14 @@
 }
 
 .TimeSliderInput{
-	width: 80%;
+	width: 100%;
+}
+
+body {
+	font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+	padding: 0px 5%;
+}
+
+.tableUnits{
+	text-align: center;
 }

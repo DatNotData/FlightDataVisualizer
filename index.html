@@ -17,22 +17,16 @@
 
 		<span>
 			<label>Upload Flight Data CSV File</label>
-			<input type="file" accept=".csv" id="dataFileSelector">
+			<input type="file" accept=".csv" id="dataFileSelector" onchange="readAndProcessData()">
 		</span>
 
-		<span>
-			<input type="button" value="Load Data" onclick="readDataFile()">
-		</span>	
-		
 
 	</section>
 
 	<section>
 		<!--<h2>Data Formatting</h2>-->
 		<div>
-			<p>Enter the index of where the following elements are located on one line of flight data. For example, if
-				the
-				TIME data is the first number, set 0 as the index.</p>
+			<p>Enter the index of where the following values are located on one line of flight data. </p>
 		</div>
 
 		<div>
@@ -42,6 +36,7 @@
 					<th>Yaw</th>
 					<th>Pitch</th>
 					<th>Roll</th>
+					<th>Altitude</th>
 				</tr>
 				<tr>
 					<td><input type="number" value="0" min="0" step="1" oninput="validity.valid||(value='');"
@@ -52,6 +47,33 @@
 							id="index_pitch"></td>
 					<td><input type="number" value="12" min="0" step="1" oninput="validity.valid||(value='');"
 							id="index_roll"></td>
+					<td><input type="number" value="3" min="0" step="1" oninput="validity.valid||(value='');"
+							id="index_altitude"></td>
+				</tr>
+				<tr class=tableUnits>
+					<td>
+						<select id="units_time">
+							<option value="1">Seconds (s)</option>
+							<option value="0.001">Milliseconds (ms)</option>
+							<option value="0.000001" selected="selected">Microseconds (us)</option>
+						  </select>
+					</td>
+					<td colspan=3>
+						<label for="angles_units_degrees">Degrees</label>
+						<input type="radio" id="angles_units_degrees" name="angles_units_button" checked>
+						<label for="angles_units_radians">Radians</label>
+						<input type="radio" id="angles_units_radians" name="angles_units_button">
+						&emsp;&emsp;&emsp;
+						<label>Invert Rotation Direction</label>
+						<input type="checkbox" id="invertRotationDirection">
+					</td>
+					<td>
+						<select id="units_altitude">
+							<option value="1" selected="selected">Meters (m)</option>
+							<option value="0.001">Millimeters (mm)</option>
+							<option value="0.3048">Feets (ft)</option>
+						  </select>
+					</td>
 				</tr>
 			</table>
 		</div>
@@ -69,7 +91,7 @@
 		<!--<h2>3D Viewer and Controls</h2>-->
 		<section>
 			<div>
-				<label>Time slider:</label>
+				<!--<label>Time slider:</label>-->
 				<input type="range" class="TimeSliderInput" id="timeSlider" min="0" max="0"
 					oninput="timerSliderUpdate()">
 				<br>
