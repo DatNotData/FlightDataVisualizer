@@ -26,8 +26,8 @@ class Indexes {
 	p;
 	r;
 	altitude;
-	servo1;
-	servo2;
+	servoX;
+	servoZ;
 	ax;
 	ay;
 	az;
@@ -44,6 +44,8 @@ var yChar;
 var axisY;
 var zChar;
 var axes;
+
+var motorAxis;
 
 class UnitsMultipliers { // all input values are being converted to the following
 	distance; // for conversion to meters
@@ -107,6 +109,8 @@ function prepareDataViewer() { // prepare indexes and everything for the 3D view
 	indexes.p = document.getElementById("index_pitch").value;
 	indexes.r = document.getElementById("index_roll").value;
 	indexes.altitude = document.getElementById("index_altitude").value;
+	indexes.servoX = document.getElementById("index_servoX").value;
+	indexes.servoZ = document.getElementById("index_servoZ").value;
 
 	if (document.getElementById("angles_units_degrees").checked) {
 		unitsMultipliers.angles = Math.PI / 180; // to convert from deg to rad
@@ -119,6 +123,13 @@ function prepareDataViewer() { // prepare indexes and everything for the 3D view
 	unitsMultipliers.time = document.getElementById("units_time").value;
 
 
+	if(document.getElementById("invertRotationDirection").checked){
+		unitsMultipliers.rotationDirection = -1;
+	}
+	else{
+		unitsMultipliers.rotationDirection = 1;
+	}
+
 
 	if (data.length > 2) {
 		smallest_dt = data[1][indexes.t] - data[0][indexes.t];
@@ -128,10 +139,10 @@ function prepareDataViewer() { // prepare indexes and everything for the 3D view
 				smallest_dt = dt;
 			}
 		}
-		
+
 	}
 
-	datadt = data[data.length-1][indexes.t] - data[0][indexes.t];
+	datadt = data[data.length - 1][indexes.t] - data[0][indexes.t];
 	maxSliderValue = datadt / smallest_dt * sliderMultiplier;
 
 	updateTimeMinMax();
@@ -146,6 +157,8 @@ function getDataAtTime() { // get the data point closest to the time of the slid
 		b = b[indexes.t];
 		return Math.abs(a - sliderTimeValue) - Math.abs(b - sliderTimeValue);
 	})[0];
+	document.getElementById("dataAtTimeValueText").innerHTML = dataAtTime;
+	
 }
 
 function updateRocketModel() { // get the needed data and update the model orientation
@@ -158,28 +171,40 @@ function updateRocketModel() { // get the needed data and update the model orien
 	roll *= unitsMultipliers.angles;
 
 	rocketModel.rotationQuaternion = null;
-
 	rocketModel.rotation.x = 0;
 	rocketModel.rotation.y = 0;
 	rocketModel.rotation.z = 0;
+	rocketModel.rotate(BABYLON.Axis.X, -yaw * unitsMultipliers.rotationDirection, BABYLON.Space.LOCAL);
+	rocketModel.rotate(BABYLON.Axis.Z, -pitch * unitsMultipliers.rotationDirection, BABYLON.Space.LOCAL);
+	rocketModel.rotate(BABYLON.Axis.Y, -roll * unitsMultipliers.rotationDirection, BABYLON.Space.LOCAL);
 
 
-	rocketModel.rotate(BABYLON.Axis.X, -yaw, BABYLON.Space.LOCAL);
-	rocketModel.rotate(BABYLON.Axis.Z, -pitch, BABYLON.Space.LOCAL);
-	rocketModel.rotate(BABYLON.Axis.Y, -roll, BABYLON.Space.LOCAL);
+	motorAxis.rotationQuaternion = null;
+	motorAxis.rotation.x = 0;
+	motorAxis.rotation.y = 0;
+	motorAxis.rotation.z = 0;
+	motorAxis.rotate(BABYLON.Axis.X, -yaw * unitsMultipliers.rotationDirection, BABYLON.Space.LOCAL);
+	motorAxis.rotate(BABYLON.Axis.Z, -pitch * unitsMultipliers.rotationDirection, BABYLON.Space.LOCAL);
+	motorAxis.rotate(BABYLON.Axis.Y, -roll * unitsMultipliers.rotationDirection, BABYLON.Space.LOCAL);
+	motorAxis.rotate(BABYLON.Axis.X, dataAtTime[indexes.servoX] * Math.PI / 180, BABYLON.Space.LOCAL);
+	motorAxis.rotate(BABYLON.Axis.Z, dataAtTime[indexes.servoZ] * Math.PI / 180, BABYLON.Space.LOCAL);
+
 
 	if (!(indexes.altitude === "")) {
 		var altitude = dataAtTime[indexes.altitude] * unitsMultipliers.distance; // converts to meters
 		rocketModel.position = new BABYLON.Vector3(0, rocketZeroHeight + altitude * 1000, 0); // reconverts to mm for displaying
 
 		//axes.position = new BABYLON.Vector3(0, rocketZeroHeight + altitude, 0);
-		var position = new BABYLON.Vector3(0, altitude * 1000, 0);
+		var position = new BABYLON.Vector3(0, altitude * 1000 + rocketZeroHeight, 0);
 		axisX.position = position;
 		axisY.position = position;
 		axisZ.position = position;
+		motorAxis.position = position;
 		xChar.position = new BABYLON.Vector3(0.9 * axesSize, 0.05 * axesSize + altitude * 1000 + rocketZeroHeight, 0);
 		yChar.position = new BABYLON.Vector3(0, 0.9 * axesSize + altitude * 1000 + rocketZeroHeight, -0.05 * axesSize);
 		zChar.position = new BABYLON.Vector3(0, 0.05 * axesSize + altitude * 1000 + rocketZeroHeight, 0.9 * axesSize);
+
+
 
 
 	}
@@ -190,6 +215,7 @@ function updateRocketModel() { // get the needed data and update the model orien
 		axisX.position = position;
 		axisY.position = position;
 		axisZ.position = position;
+		motorAxis.position = position;
 		xChar.position = new BABYLON.Vector3(0.9 * axesSize, 0.05 * axesSize + altitude * 1000 + rocketZeroHeight, 0);
 		yChar.position = new BABYLON.Vector3(0, 0.9 * axesSize + altitude * 1000 + rocketZeroHeight, -0.05 * axesSize);
 		zChar.position = new BABYLON.Vector3(0, 0.05 * axesSize + altitude * 1000 + rocketZeroHeight, 0.9 * axesSize);
@@ -199,8 +225,8 @@ function updateRocketModel() { // get the needed data and update the model orien
 
 function timerSliderUpdate() { // when the timer slider has moved
 	var sliderRawValue = parseFloat(document.getElementById("timeSlider").value); // get the slider value
-	
-	sliderTimeValue = sliderRawValue/maxSliderValue * datadt + data[0][indexes.t];
+
+	sliderTimeValue = sliderRawValue / maxSliderValue * datadt + data[0][indexes.t];
 	getDataAtTime(); // get new data at time
 
 	document.getElementById("timeSliderValueText").innerHTML = dataAtTime[indexes.t]; // udpate the text
@@ -287,7 +313,7 @@ const createScene = () => {
 		return plane;
 	};
 
-	var axesHeight = rocketZeroHeight;
+	var axesHeight = 0;
 	axisX = BABYLON.Mesh.CreateLines("axisX", [
 		new BABYLON.Vector3(0, axesHeight, 0), new BABYLON.Vector3(axesSize, axesHeight, 0), new BABYLON.Vector3(axesSize * 0.95, 0.05 * axesSize + axesHeight, 0),
 		new BABYLON.Vector3(axesSize, axesHeight, 0), new BABYLON.Vector3(axesSize * 0.95, -0.05 * axesSize + axesHeight, 0)
@@ -312,6 +338,20 @@ const createScene = () => {
 
 	//axes = BABYLON.Mesh.MergeMeshes([axisX, axisY, axisZ]);
 	//axes = BABYLON.MeshBuilder.CreateLineSystem("lineSystem", [axisX, axisY, axisZ], scene);
+
+	motorAxis = BABYLON.Mesh.CreateLines("motorAxis", [new BABYLON.Vector3(0, axesHeight, 0), new BABYLON.Vector3(0, axesHeight - axesSize, 0)], scene, updatable = true);
+	motorAxis.color = new BABYLON.Color3(1, 0.6, 0.1);
+
+	var altitude = rocketZeroHeight / 1000; // converts to meters
+	var position = new BABYLON.Vector3(0, altitude * 1000, 0);
+	axisX.position = position;
+	axisY.position = position;
+	axisZ.position = position;
+	motorAxis.position = position;
+	xChar.position = new BABYLON.Vector3(0.9 * axesSize, 0.05 * axesSize + altitude * 1000 + rocketZeroHeight, 0);
+	yChar.position = new BABYLON.Vector3(0, 0.9 * axesSize + altitude * 1000 + rocketZeroHeight, -0.05 * axesSize);
+	zChar.position = new BABYLON.Vector3(0, 0.05 * axesSize + altitude * 1000 + rocketZeroHeight, 0.9 * axesSize);
+
 
 
 

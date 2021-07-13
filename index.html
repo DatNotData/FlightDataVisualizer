@@ -37,18 +37,23 @@
 					<th>Pitch</th>
 					<th>Roll</th>
 					<th>Altitude</th>
+					<th>Servo X</th>
+					<th>Servo Z</th>
 				</tr>
 				<tr>
-					<td><input type="number" min="0" step="1" oninput="validity.valid||(value='');" id="index_time">
+					<td><input type="number" value="0" min="0" step="1" oninput="validity.valid||(value='');" id="index_time">
 					</td>
-					<td><input type="number" min="0" step="1" oninput="validity.valid||(value='');" id="index_yaw"></td>
-					<td><input type="number" min="0" step="1" oninput="validity.valid||(value='');" id="index_pitch">
+					<td><input type="number" value="10" min="0" step="1" oninput="validity.valid||(value='');" id="index_yaw"></td>
+					<td><input type="number" value="11" min="0" step="1" oninput="validity.valid||(value='');" id="index_pitch">
 					</td>
-					<td><input type="number" min="0" step="1" oninput="validity.valid||(value='');" id="index_roll">
+					<td><input type="number" value="12" min="0" step="1" oninput="validity.valid||(value='');" id="index_roll">
 					</td>
-					<td><input type="number" min="0" step="1" oninput="validity.valid||(value='');" id="index_altitude">
+					<td><input type="number" value="3" min="0" step="1" oninput="validity.valid||(value='');" id="index_altitude">
 					</td>
-				</tr>
+					<td><input type="number" value="13" min="0" step="1" oninput="validity.valid||(value='');" id="index_servoX">
+					</td>
+					<td><input type="number" value="14" min="0" step="1" oninput="validity.valid||(value='');" id="index_servoZ">
+				</tr>	
 				<tr class=tableUnits>
 					<td>
 						<select id="units_time">
@@ -96,6 +101,9 @@
 				<br>
 				<span>Timestamp from data: </span>
 				<span id="timeSliderValueText">Value Will Be Dislpayed Here</span>
+				&emsp;&emsp;&emsp;
+				<span>Data at time: </span>
+				<span id="dataAtTimeValueText">Value Will Be Dislpayed Here</span>
 			</div>
 
 
